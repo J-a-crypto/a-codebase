@@ -2,3 +2,23 @@
   font-family: sans-serif;
   text-align: center;
 }
+.BlueSquare {
+  background-color: blue;
+  width: 100px;
+}
+.circle {
+  color: transparent;
+  border-radius: 90%;
+  width: 100px;
+  height: 100px;
+}
+.red {
+  background-color: red;
+}
+.yellow {
+  background-color: yellow;
+}
+.board {
+  background-color: blue;
+  display: inline-block;
+}
