@@ -2,56 +2,81 @@ import { useState } from "react";
 import "./styles.css";
 import React from "react";
 
-export default function App() {
-  const [playerTurn, changePlayerTurn] = useState("red");
-  const [tokens, changeTokens] = useState([]);
-  const [board, updateBoard] = useState([[], [], [], [], [], [], []]);
+function Column(props) {
+  return (
+    <div className="column" onClick={props.onClick}>
+      {[5, 4, 3, 2, 1, 0].map((rowIndex) => (
+        <div className={`slot ${props.chips[rowIndex]}`} key={rowIndex}></div>
+      ))}
+    </div>
+  );
+}
 
+export default function App() {
+  const [board, updateBoard] = useState([[], [], [], [], [], [], []]);
+  const [playerTurn, changePlayerTurn] = useState("red");
   //Note: Use an array as the intial value to keep track of the tokens dropped
-  function playColumn(columnNumber) {
-    updateBoard([...board, playerTurn]);
-  }
+
   function togglePlayerTurn() {
-    if (tokens.length < 6) {
-      if (playerTurn === "red") {
-        changePlayerTurn("yellow");
-      } else if (playerTurn === "yellow") {
-        changePlayerTurn("red");
-      }
+    if (playerTurn === "red") {
+      changePlayerTurn("yellow");
+    } else if (playerTurn === "yellow") {
+      changePlayerTurn("red");
     }
   }
-
-  function addToken() {
-    changeTokens([...tokens, playerTurn]);
-    togglePlayerTurn();
-    playColumn();
-  }
-
-  function Column(props) {
-    return (
-      <div class="column" onClick={() => props.onClick()}>
-        {board.map((a) => (
-          <div>
-            <div class="BlueSquare">
-              <button class={`${props.tokens[a]} circle`}></button>
-            </div>
-          </div>
-        ))}
-      </div>
-    );
+  function playColumn(columnNumber) {
+    if (board[columnNumber].length < 6) {
+      board[columnNumber] = [...board[columnNumber], playerTurn];
+      updateBoard([...board]);
+      togglePlayerTurn();
+      if (isWin(board)) {
+        alert("Winner");
+      }
+    }
   }
 
   return (
     <div className="App">
       <div class="board">
-        <Column tokens={board[0]} onClick={() => addToken()} />,
-        <Column tokens={board[1]} onClick={() => addToken()} />,
-        <Column tokens={board[2]} onClick={() => addToken()} />,
-        <Column tokens={board[3]} onClick={() => addToken()} />,
-        <Column tokens={board[4]} onClick={() => addToken()} />,
-        <Column tokens={board[5]} onClick={() => addToken()} />,
-        <p>It is {playerTurn}'s turn</p>
+        {board.map((column, index) => (
+          <Column
+            key={index.toString()}
+            onClick={() => playColumn(index)}
+            chips={column}
+          ></Column>
+        ))}
       </div>
+      <p>It is {playerTurn}'s turn</p>
     </div>
   );
 }
+function isWin(board) {
+  // win vertically
+  for (const column of board) {
+    for (const offset of [0, 1, 2]) {
+      if (
+        column[offset] !== undefined &&
+        column[offset] === column[offset + 1] &&
+        column[offset] === column[offset + 2] &&
+        column[offset] === column[offset + 3]
+      ) {
+        return column[offset];
+      }
+    }
+  }
+}
+const exampleState = {
+  nextTurn: "yellow",
+  board: [[], [], [], ["yellow", "yellow", "yellow"]]
+};
+isWin(exampleState.board); //no one wins
+
+isWin([
+  [],
+  [],
+  [],
+  ["yellow", "yellow", "yellow", "yellow", "red"],
+  ["red"],
+  ["red"],
+  ["red"]
+]); //yellow wins
